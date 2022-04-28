@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Chat</string>
+    <string name="message_hit">Message</string>
+    <string name="name">Name</string>
+    <string name="login">Login</string>
+    <string name="must_be_filled">Must be filled</string>
+</resources>
