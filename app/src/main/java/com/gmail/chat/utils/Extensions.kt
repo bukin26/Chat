@@ -23,7 +23,7 @@ object Extensions {
         val messageDto = Gson().fromJson(this.payload, MessageDto::class.java)
         return Message(
             text = messageDto.message,
-            senderId = messageDto.from.id,
+            id = messageDto.from.id,
             name = messageDto.from.name,
             isMessageIsMy = false,
             date = Date()

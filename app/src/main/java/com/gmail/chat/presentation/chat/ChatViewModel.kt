@@ -13,4 +13,8 @@ class ChatViewModel @Inject constructor(private val repository: Repository) : Vi
     fun sendMessage(receiverId: String, text: String) {
         repository.sendMessage(receiverId, text)
     }
+
+    fun disconnect() {
+        repository.disconnect()
+    }
 }

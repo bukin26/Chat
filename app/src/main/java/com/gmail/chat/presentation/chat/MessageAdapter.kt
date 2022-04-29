@@ -1,7 +1,5 @@
 package com.gmail.chat.presentation.chat
 
-import android.annotation.SuppressLint
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -11,10 +9,8 @@ import androidx.viewbinding.ViewBinding
 import com.gmail.chat.databinding.ItemGetMessageBinding
 import com.gmail.chat.databinding.ItemSendMessageBinding
 import com.gmail.chat.model.Message
-import java.text.SimpleDateFormat
-
-private const val SEND_MESSAGE_TYPE = 1
-private const val GET_MESSAGE_TYPE = 2
+import com.gmail.chat.utils.Constants
+import com.gmail.chat.utils.DateUtil
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
     ItemDiffCallback
@@ -27,26 +23,20 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
 
     class SentMessageViewHolder(private val binding: ItemSendMessageBinding) :
         MessageViewHolder(binding) {
-        @SuppressLint("SimpleDateFormat")
         override fun bind(message: Message) {
-            Log.d("TAG", "bind: ")
             with(binding) {
                 textMessageSend.text = message.text
-                val dateFormatter = SimpleDateFormat("HH:mm MMM d")
-                textDateSend.text = dateFormatter.format(message.date)
+                textDateSend.text = DateUtil.formatDate(message.date)
             }
         }
     }
 
     class GetMessageViewHolder(private val binding: ItemGetMessageBinding) :
         MessageViewHolder(binding) {
-        @SuppressLint("SimpleDateFormat")
         override fun bind(message: Message) {
             with(binding) {
-                Log.d("TAG", "bind: ")
                 textMessageGet.text = message.text
-                val dateFormatter = SimpleDateFormat("HH:mm MMM d")
-                textDateGet.text = dateFormatter.format(message.date)
+                textDateGet.text = DateUtil.formatDate(message.date)
                 textUserNameGet.text = message.name
             }
         }
@@ -54,7 +44,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return if (viewType == SEND_MESSAGE_TYPE) {
+        return if (viewType == Constants.SEND_MESSAGE_TYPE) {
             SentMessageViewHolder(
                 ItemSendMessageBinding.inflate(
                     inflater,
@@ -78,8 +68,11 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
     }
 
     override fun getItemViewType(position: Int): Int {
-        val message = getItem(position)
-        return if (message.isMessageIsMy) SEND_MESSAGE_TYPE else GET_MESSAGE_TYPE
+        return if (getItem(position).isMessageIsMy) {
+            Constants.SEND_MESSAGE_TYPE
+        } else {
+            Constants.GET_MESSAGE_TYPE
+        }
     }
 }
 

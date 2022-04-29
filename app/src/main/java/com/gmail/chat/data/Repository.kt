@@ -1,38 +1,50 @@
 package com.gmail.chat.data
 
-import android.util.Log
 import com.gmail.chat.model.*
+import com.gmail.chat.utils.Constants
 import com.gmail.chat.utils.Extensions.toConnectedDto
 import com.gmail.chat.utils.Extensions.toMessage
 import com.gmail.chat.utils.Extensions.toUsersList
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class Repository @Inject constructor(private val socketHandler: SocketHandler) {
+interface Repository {
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    val messages: SharedFlow<Message>
+    val usersList: SharedFlow<List<User>>
+
+    fun disconnect()
+    fun sendMessage(id: String, text: String)
+    fun connect(name: String)
+    fun getUsersList()
+}
+
+class RepositoryImpl @Inject constructor(
+    private val socketHandler: SocketHandler,
+    private val scope: CoroutineScope
+) : Repository {
+
     private var currentUserId = ""
     private var currentUserName = ""
-
     private val _usersListFlow = MutableSharedFlow<List<User>>(
         replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val usersList: SharedFlow<List<User>>
+    override val usersList: SharedFlow<List<User>>
         get() = _usersListFlow
-
-    private val _messagesFlow = MutableSharedFlow<Message>()
-    val messages: SharedFlow<Message>
+    private val _messagesFlow = MutableSharedFlow<Message>(
+        replay = 100,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    override val messages: SharedFlow<Message>
         get() = _messagesFlow
 
     init {
@@ -47,7 +59,6 @@ class Repository @Inject constructor(private val socketHandler: SocketHandler) {
                     }
                     BaseDto.Action.PONG -> {
                         ping()
-                        getUsersList()
                     }
                     BaseDto.Action.USERS_RECEIVED -> {
                         setUsers(it)
@@ -56,57 +67,73 @@ class Repository @Inject constructor(private val socketHandler: SocketHandler) {
                         getUsersList()
                         _messagesFlow.emit(it.toMessage())
                     }
+                    else -> {}
                 }
             }
         }
     }
 
-    fun disconnect() {
-        val baseDto = BaseDto(
-            BaseDto.Action.DISCONNECT,
-            Gson().toJson(DisconnectDto(currentUserId, 0))
-        )
-        val message = Gson().toJson(baseDto)
-        socketHandler.disconnect(message)
+    override fun disconnect() {
+        scope.launch {
+            val message = formJson(
+                BaseDto.Action.DISCONNECT,
+                DisconnectDto(currentUserId, 0)
+            )
+            socketHandler.sendBaseDto(message)
+        }
     }
 
-    fun sendMessage(receiverId: String, text: String) {
-        val baseDto = BaseDto(
-            BaseDto.Action.SEND_MESSAGE,
-            Gson().toJson(SendMessageDto(currentUserId, receiverId, text))
-        )
-        val sentMessage = Gson().toJson(baseDto)
-        socketHandler.sendMessage(sentMessage)
+    override fun sendMessage(id: String, text: String) {
+        scope.launch {
+            val message = formJson(
+                BaseDto.Action.SEND_MESSAGE,
+                SendMessageDto(currentUserId, id, text)
+            )
+            socketHandler.sendBaseDto(message)
+            val sentMessage = Message(text, id, currentUserName, true, Date())
+            _messagesFlow.emit(sentMessage)
+        }
     }
 
-    suspend fun setUsers(baseDto: BaseDto) {
+    private suspend fun setUsers(baseDto: BaseDto) {
         _usersListFlow.emit(baseDto.toUsersList())
     }
 
-    fun getUsersList() {
-        val baseDto = BaseDto(BaseDto.Action.GET_USERS, Gson().toJson(PingDto(currentUserId)))
-        val message = Gson().toJson(baseDto)
-        socketHandler.getUsersList(message)
+    override fun getUsersList() {
+        scope.launch {
+            val message = formJson(BaseDto.Action.GET_USERS, GetUsersDto(currentUserId))
+            socketHandler.sendBaseDto(message)
+        }
     }
 
-    fun ping() {
-        val baseDto = BaseDto(BaseDto.Action.PING, Gson().toJson(PingDto(currentUserId)))
-        val message = Gson().toJson(baseDto)
-        socketHandler.ping(message)
+    private fun ping() {
+        scope.launch {
+            delay(Constants.PING_DELAY)
+            val message = formJson(BaseDto.Action.PING, PingDto(currentUserId))
+            socketHandler.sendBaseDto(message)
+        }
     }
 
     fun login() {
-        val baseDto = BaseDto(
-            BaseDto.Action.CONNECT,
-            Gson().toJson(ConnectDto(currentUserId, currentUserName))
-        )
-        val message = Gson().toJson(baseDto)
-        socketHandler.logIn(message)
+        scope.launch {
+            val message = formJson(
+                BaseDto.Action.CONNECT,
+                ConnectDto(currentUserId, currentUserName)
+            )
+            socketHandler.sendBaseDto(message)
+        }
     }
 
-    fun connect(name: String) {
-        currentUserName = name
-        socketHandler.connect()
+    override fun connect(name: String) {
+        scope.launch {
+            currentUserName = name
+            socketHandler.connect()
+        }
+    }
+
+    private fun formJson(myAction: BaseDto.Action, myPayload: Payload): String {
+        val baseDto = BaseDto(myAction, Gson().toJson(myPayload))
+        return Gson().toJson(baseDto)
     }
 }
 

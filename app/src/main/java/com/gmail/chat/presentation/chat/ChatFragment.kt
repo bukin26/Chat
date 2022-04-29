@@ -1,21 +1,23 @@
 package com.gmail.chat.presentation.chat
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentChatBinding
 import com.gmail.chat.model.Message
+import com.gmail.chat.utils.SharedPreferencesUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
-import java.util.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
@@ -39,22 +41,29 @@ class ChatFragment : Fragment() {
         with(binding) {
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             recyclerView.adapter = adapter
-        }
-        binding.buttonSend.setOnClickListener {
-            val text = binding.editText.text.toString()
-            if (text.isNotBlank()) {
-                viewModel.sendMessage(args.id, text)
-                val savedMessage = Message(text, "", "", true, Date())
-                list.add(savedMessage)
-                adapter.submitList(list.toList())
-                binding.editText.text.clear()
+            toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.log_out -> {
+                        viewModel.disconnect()
+                        SharedPreferencesUtil.removeUserName(requireContext())
+                        findNavController().popBackStack(R.id.loginFragment, false)
+                        true
+                    }
+                    else -> false
+                }
+            }
+            buttonSend.setOnClickListener {
+                val text = editText.text.toString()
+                if (text.isNotBlank()) {
+                    viewModel.sendMessage(args.id, text)
+                    editText.text.clear()
+                }
             }
         }
-        lifecycleScope.launchWhenResumed {
+        lifecycleScope.launch {
             viewModel.messages.filter {
-                it.senderId == args.id
+                (it.id == args.id)
             }.collect {
-                Log.d("TAG", "onViewCreated: ${it.isMessageIsMy}")
                 list.add(it)
                 adapter.submitList(list.toList())
             }

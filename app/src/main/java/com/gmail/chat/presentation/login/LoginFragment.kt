@@ -23,14 +23,13 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        /*getSavedUserName()?.let {
+        SharedPreferencesUtil.getUserName(requireContext())?.let {
             viewModel.connect(it)
             navigateToUsersList(it)
-        }*/
+        }
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,9 +51,5 @@ class LoginFragment : Fragment() {
     private fun navigateToUsersList(name: String) {
         val directions = LoginFragmentDirections.actionLoginFragmentToUsersListFragment(name)
         findNavController().navigate(directions)
-    }
-
-    private fun getSavedUserName(): String? {
-        return SharedPreferencesUtil.getUserName(requireContext())
     }
 }

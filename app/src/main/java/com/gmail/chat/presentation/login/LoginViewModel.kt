@@ -8,8 +8,6 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
 
-    val messages = repository.messages
-
     fun connect(name: String) {
         repository.connect(name)
     }

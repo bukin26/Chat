@@ -1,18 +1,19 @@
 package com.gmail.chat.presentation.userslist
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentUsersListBinding
 import com.gmail.chat.model.User
+import com.gmail.chat.utils.SharedPreferencesUtil
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -37,11 +38,30 @@ class UsersListFragment : Fragment() {
         with(binding) {
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             recyclerView.adapter = adapter
-        }
-        lifecycleScope.launch {
-            viewModel.usersList.collect {
-                adapter.submitList(it)
+            toolbar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.refresh -> {
+                        viewModel.refreshUsersList()
+                        true
+                    }
+                    R.id.log_out -> {
+                        viewModel.disconnect()
+                        SharedPreferencesUtil.removeUserName(requireContext())
+                        findNavController().popBackStack(R.id.loginFragment, false)
+                        true
+                    }
+                    else -> false
+                }
             }
+            lifecycleScope.launch {
+                viewModel.usersList.collect {
+                    adapter.submitList(it)
+                }
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            viewModel.disconnect()
+            findNavController().popBackStack(R.id.loginFragment, false)
         }
     }
 
