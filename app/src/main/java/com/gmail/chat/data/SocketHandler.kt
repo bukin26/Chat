@@ -36,6 +36,8 @@ class SocketHandler @Inject constructor() {
         isConnected = false
         _connectionState.emit(isConnected)
         socket = null
+        input?.close()
+        output?.close()
         input = null
         output = null
     }
