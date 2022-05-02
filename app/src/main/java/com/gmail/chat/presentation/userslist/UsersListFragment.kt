@@ -13,17 +13,26 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentUsersListBinding
 import com.gmail.chat.model.User
-import com.gmail.chat.utils.SharedPreferencesUtil
+import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class UsersListFragment : Fragment() {
 
     private lateinit var binding: FragmentUsersListBinding
-    private val viewModel: UsersListViewModel by viewModels()
     private val adapter = UsersAdapter { user -> adapterOnClick(user) }
+
+    @Inject
+    lateinit var viewModelFactory: UsersListViewModelFactory.Factory
+    private val prefs: MySharedPreferences by lazy {
+        MySharedPreferences.getInstance(requireContext())
+    }
+    private val viewModel: UsersListViewModel by viewModels(factoryProducer = {
+        viewModelFactory.create(prefs)
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +55,6 @@ class UsersListFragment : Fragment() {
                     }
                     R.id.log_out -> {
                         viewModel.disconnect()
-                        SharedPreferencesUtil.removeUserName(requireContext())
                         findNavController().popBackStack(R.id.loginFragment, false)
                         true
                     }

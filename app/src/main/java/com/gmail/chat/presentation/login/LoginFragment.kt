@@ -10,23 +10,31 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentLoginBinding
-import com.gmail.chat.utils.SharedPreferencesUtil
+import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
-    private val viewModel: LoginViewModel by viewModels()
+
+    @Inject
+    lateinit var viewModelFactory: LoginViewModelFactory.Factory
+    private val prefs: MySharedPreferences by lazy {
+        MySharedPreferences.getInstance(requireContext())
+    }
+    private val viewModel: LoginViewModel by viewModels(factoryProducer = {
+        viewModelFactory.create(prefs) {
+            navigateToUsersList(it)
+        }
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        SharedPreferencesUtil.getUserName(requireContext())?.let {
-            viewModel.connect(it)
-            navigateToUsersList(it)
-        }
+        viewModel.chekIsUserAlreadyLoggedIn()
         binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -40,9 +48,8 @@ class LoginFragment : Fragment() {
                     textLayoutName.error = resources.getString(R.string.must_be_filled)
                     textLayoutName.errorIconDrawable = null
                 } else {
-                    SharedPreferencesUtil.saveUserName(requireContext(), name)
                     viewModel.connect(name)
-                    navigateToUsersList(name)
+                    viewModel.saveUserName(name)
                 }
             }
         }

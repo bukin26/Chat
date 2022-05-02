@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -18,6 +19,7 @@ import javax.inject.Inject
 
 interface Repository {
 
+    val connectionState: StateFlow<Boolean>
     val messages: SharedFlow<Message>
     val usersList: SharedFlow<List<User>>
 
@@ -32,6 +34,7 @@ class RepositoryImpl @Inject constructor(
     private val scope: CoroutineScope
 ) : Repository {
 
+    override val connectionState = socketHandler.connectionState
     private var currentUserId = ""
     private var currentUserName = ""
     private val _usersListFlow = MutableSharedFlow<List<User>>(
@@ -80,6 +83,7 @@ class RepositoryImpl @Inject constructor(
                 DisconnectDto(currentUserId, 0)
             )
             socketHandler.sendBaseDto(message)
+            socketHandler.disconnect()
         }
     }
 
@@ -114,7 +118,7 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    fun login() {
+    private fun login() {
         scope.launch {
             val message = formJson(
                 BaseDto.Action.CONNECT,

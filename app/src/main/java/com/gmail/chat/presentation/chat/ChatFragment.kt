@@ -12,21 +12,27 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentChatBinding
-import com.gmail.chat.model.Message
-import com.gmail.chat.utils.SharedPreferencesUtil
+import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
 
     private lateinit var binding: FragmentChatBinding
-    private val viewModel: ChatViewModel by viewModels()
     private val args: ChatFragmentArgs by navArgs()
-    private val list = mutableListOf<Message>()
     private val adapter = MessageAdapter()
+
+    @Inject
+    lateinit var viewModelFactory: ChatViewModelFactory.Factory
+    private val prefs: MySharedPreferences by lazy {
+        MySharedPreferences.getInstance(requireContext())
+    }
+    private val viewModel: ChatViewModel by viewModels(factoryProducer = {
+        viewModelFactory.create(args.id, prefs)
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +51,6 @@ class ChatFragment : Fragment() {
                 when (it.itemId) {
                     R.id.log_out -> {
                         viewModel.disconnect()
-                        SharedPreferencesUtil.removeUserName(requireContext())
                         findNavController().popBackStack(R.id.loginFragment, false)
                         true
                     }
@@ -55,17 +60,14 @@ class ChatFragment : Fragment() {
             buttonSend.setOnClickListener {
                 val text = editText.text.toString()
                 if (text.isNotBlank()) {
-                    viewModel.sendMessage(args.id, text)
+                    viewModel.sendMessage(text)
                     editText.text.clear()
                 }
             }
         }
         lifecycleScope.launch {
-            viewModel.messages.filter {
-                (it.id == args.id)
-            }.collect {
-                list.add(it)
-                adapter.submitList(list.toList())
+            viewModel.messagesListFlow.collect {
+                adapter.submitList(it)
             }
         }
     }

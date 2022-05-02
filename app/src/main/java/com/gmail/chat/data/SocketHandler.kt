@@ -4,7 +4,9 @@ import com.gmail.chat.model.BaseDto
 import com.gmail.chat.utils.Constants
 import com.gmail.chat.utils.Extensions.toBaseDto
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -19,12 +21,21 @@ import javax.inject.Singleton
 @Singleton
 class SocketHandler @Inject constructor() {
 
+    private var isConnected = false
+    private val _connectionState = MutableStateFlow(isConnected)
+    val connectionState: StateFlow<Boolean>
+        get() = _connectionState
     private val _eventsFlow = MutableSharedFlow<BaseDto>()
     val eventsFlow: SharedFlow<BaseDto>
         get() = _eventsFlow
     private lateinit var socket: Socket
     private lateinit var input: BufferedReader
     private lateinit var output: PrintWriter
+
+    suspend fun disconnect() {
+        isConnected = false
+        _connectionState.emit(isConnected)
+    }
 
     fun sendBaseDto(message: String) {
         output.println(message)
@@ -38,8 +49,8 @@ class SocketHandler @Inject constructor() {
             DatagramPacket(
                 buffer,
                 buffer.size,
-                InetAddress.getByName("10.0.2.2"),
-                //InetAddress.getByName("255.255.255.255"),
+                InetAddress.getByName(Constants.EMULATOR_INET_ADDRESS),
+                //InetAddress.getByName(Constants.DEVICE_INET_ADDRESS),
                 Constants.UDP_PORT
             )
         datagramSocket.send(packet)
@@ -51,7 +62,9 @@ class SocketHandler @Inject constructor() {
         socket = Socket(packet.address.hostAddress, Constants.TCP_PORT)
         output = PrintWriter(OutputStreamWriter(socket.getOutputStream()))
         input = BufferedReader(InputStreamReader(socket.getInputStream()))
-        while (true) {
+        isConnected = true
+        _connectionState.emit(isConnected)
+        while (isConnected) {
             val response = input.readLine()
             if (!response.isNullOrBlank()) {
                 _eventsFlow.emit(response.toBaseDto())
