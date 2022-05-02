@@ -12,7 +12,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentChatBinding
-import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -27,11 +26,8 @@ class ChatFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ChatViewModelFactory.Factory
-    private val prefs: MySharedPreferences by lazy {
-        MySharedPreferences.getInstance(requireContext())
-    }
     private val viewModel: ChatViewModel by viewModels(factoryProducer = {
-        viewModelFactory.create(args.id, prefs)
+        viewModelFactory.create(args.id)
     })
 
     override fun onCreateView(

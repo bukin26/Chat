@@ -28,18 +28,21 @@ class SocketHandler @Inject constructor() {
     private val _eventsFlow = MutableSharedFlow<BaseDto>()
     val eventsFlow: SharedFlow<BaseDto>
         get() = _eventsFlow
-    private lateinit var socket: Socket
-    private lateinit var input: BufferedReader
-    private lateinit var output: PrintWriter
+    private var socket: Socket? = null
+    private var input: BufferedReader? = null
+    private var output: PrintWriter? = null
 
     suspend fun disconnect() {
         isConnected = false
         _connectionState.emit(isConnected)
+        socket = null
+        input = null
+        output = null
     }
 
     fun sendBaseDto(message: String) {
-        output.println(message)
-        output.flush()
+        output?.println(message)
+        output?.flush()
     }
 
     suspend fun connect() {
@@ -60,12 +63,12 @@ class SocketHandler @Inject constructor() {
         )
         datagramSocket.receive(packet)
         socket = Socket(packet.address.hostAddress, Constants.TCP_PORT)
-        output = PrintWriter(OutputStreamWriter(socket.getOutputStream()))
-        input = BufferedReader(InputStreamReader(socket.getInputStream()))
+        output = PrintWriter(OutputStreamWriter(socket?.getOutputStream()))
+        input = BufferedReader(InputStreamReader(socket?.getInputStream()))
         isConnected = true
         _connectionState.emit(isConnected)
         while (isConnected) {
-            val response = input.readLine()
+            val response = input?.readLine()
             if (!response.isNullOrBlank()) {
                 _eventsFlow.emit(response.toBaseDto())
             }

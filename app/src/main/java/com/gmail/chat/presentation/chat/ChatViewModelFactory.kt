@@ -12,7 +12,7 @@ import dagger.assisted.AssistedInject
 class ChatViewModelFactory @AssistedInject constructor(
     private val repository: Repository,
     @Assisted("id") private val id: String,
-    @Assisted("prefs") private val prefs: MySharedPreferences
+    private val prefs: MySharedPreferences
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -27,7 +27,6 @@ class ChatViewModelFactory @AssistedInject constructor(
 
         fun create(
             @Assisted("id") id: String,
-            @Assisted("prefs") prefs: MySharedPreferences
         ): ChatViewModelFactory
     }
 }

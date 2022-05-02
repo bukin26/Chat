@@ -11,7 +11,7 @@ import dagger.assisted.AssistedInject
 @Suppress("UNCHECKED_CAST")
 class LoginViewModelFactory @AssistedInject constructor(
     private val repository: Repository,
-    @Assisted("prefs") private val prefs: MySharedPreferences,
+    private val prefs: MySharedPreferences,
     @Assisted("navigate") private val navigate: (String) -> Unit
 ) : ViewModelProvider.Factory {
 
@@ -26,7 +26,6 @@ class LoginViewModelFactory @AssistedInject constructor(
     interface Factory {
 
         fun create(
-            @Assisted("prefs") prefs: MySharedPreferences,
             @Assisted("navigate") navigate: (String) -> Unit
         ): LoginViewModelFactory
     }

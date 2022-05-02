@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentLoginBinding
-import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -21,11 +20,8 @@ class LoginFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: LoginViewModelFactory.Factory
-    private val prefs: MySharedPreferences by lazy {
-        MySharedPreferences.getInstance(requireContext())
-    }
     private val viewModel: LoginViewModel by viewModels(factoryProducer = {
-        viewModelFactory.create(prefs) {
+        viewModelFactory.create {
             navigateToUsersList(it)
         }
     })

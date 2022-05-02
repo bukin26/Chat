@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentUsersListBinding
 import com.gmail.chat.model.User
-import com.gmail.chat.utils.MySharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -26,12 +25,9 @@ class UsersListFragment : Fragment() {
     private val adapter = UsersAdapter { user -> adapterOnClick(user) }
 
     @Inject
-    lateinit var viewModelFactory: UsersListViewModelFactory.Factory
-    private val prefs: MySharedPreferences by lazy {
-        MySharedPreferences.getInstance(requireContext())
-    }
+    lateinit var viewModelFactory: UsersListViewModelFactory
     private val viewModel: UsersListViewModel by viewModels(factoryProducer = {
-        viewModelFactory.create(prefs)
+        viewModelFactory
     })
 
     override fun onCreateView(
