@@ -1,7 +1,7 @@
 package com.gmail.chat.di
 
-import com.gmail.chat.data.Repository
-import com.gmail.chat.data.RepositoryImpl
+import com.gmail.data.Repository
+import com.gmail.data.RepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

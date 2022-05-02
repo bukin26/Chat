@@ -1,8 +1,8 @@
 package com.gmail.chat.presentation.userslist
 
 import androidx.lifecycle.ViewModel
-import com.gmail.chat.data.Repository
-import com.gmail.chat.utils.MySharedPreferences
+import com.gmail.data.Repository
+import com.gmail.data.MySharedPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

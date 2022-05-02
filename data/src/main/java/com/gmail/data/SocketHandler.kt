@@ -1,8 +1,8 @@
-package com.gmail.chat.data
+package com.gmail.data
 
-import com.gmail.chat.model.BaseDto
-import com.gmail.chat.utils.Constants
-import com.gmail.chat.utils.Extensions.toBaseDto
+import com.gmail.data.model.BaseDto
+import com.gmail.data.utils.Constants
+import com.gmail.data.utils.Extensions.toBaseDto
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

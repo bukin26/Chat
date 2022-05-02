@@ -1,15 +1,10 @@
 package com.gmail.chat.utils
 
 import android.content.Context
+import com.gmail.data.MySharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-
-interface MySharedPreferences {
-    fun getUserName(): String?
-    fun saveUserName(userName: String)
-    fun removeUserName()
-}
 
 class MySharedPreferencesImpl @Inject constructor(@ApplicationContext context: Context) :
     MySharedPreferences {

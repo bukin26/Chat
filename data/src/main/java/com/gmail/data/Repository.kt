@@ -1,10 +1,10 @@
-package com.gmail.chat.data
+package com.gmail.data
 
-import com.gmail.chat.model.*
-import com.gmail.chat.utils.Constants
-import com.gmail.chat.utils.Extensions.toConnectedDto
-import com.gmail.chat.utils.Extensions.toMessage
-import com.gmail.chat.utils.Extensions.toUsersList
+import com.gmail.data.model.*
+import com.gmail.data.utils.Constants
+import com.gmail.data.utils.Extensions.toConnectedDto
+import com.gmail.data.utils.Extensions.toMessage
+import com.gmail.data.utils.Extensions.toUsersList
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
@@ -12,7 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject

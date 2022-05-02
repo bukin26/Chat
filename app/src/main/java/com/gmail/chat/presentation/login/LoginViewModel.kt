@@ -2,9 +2,8 @@ package com.gmail.chat.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gmail.chat.data.Repository
-import com.gmail.chat.utils.MySharedPreferences
-import kotlinx.coroutines.flow.collect
+import com.gmail.data.Repository
+import com.gmail.data.MySharedPreferences
 import kotlinx.coroutines.launch
 
 class LoginViewModel(

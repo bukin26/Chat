@@ -12,9 +12,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gmail.chat.R
 import com.gmail.chat.databinding.FragmentUsersListBinding
-import com.gmail.chat.model.User
+import com.gmail.data.model.User
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint

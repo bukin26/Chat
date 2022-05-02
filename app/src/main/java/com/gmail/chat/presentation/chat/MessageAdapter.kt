@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.gmail.chat.databinding.ItemGetMessageBinding
 import com.gmail.chat.databinding.ItemSendMessageBinding
-import com.gmail.chat.model.Message
 import com.gmail.chat.utils.Constants
 import com.gmail.chat.utils.DateUtil
+import com.gmail.data.model.Message
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
     ItemDiffCallback
@@ -78,11 +78,17 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageViewHolder>(
 
 object ItemDiffCallback : DiffUtil.ItemCallback<Message>() {
 
-    override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
+    override fun areItemsTheSame(
+        oldItem: Message,
+        newItem: Message
+    ): Boolean {
         return oldItem.date == newItem.date
     }
 
-    override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
+    override fun areContentsTheSame(
+        oldItem: Message,
+        newItem: Message
+    ): Boolean {
         return oldItem == newItem
     }
 }

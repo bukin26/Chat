@@ -2,13 +2,12 @@ package com.gmail.chat.presentation.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gmail.chat.data.Repository
-import com.gmail.chat.model.Message
-import com.gmail.chat.utils.MySharedPreferences
+import com.gmail.data.Repository
+import com.gmail.data.model.Message
+import com.gmail.data.MySharedPreferences
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 

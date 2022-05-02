@@ -1,4 +1,4 @@
-package com.gmail.chat.model
+package com.gmail.data.model
 
 data class BaseDto(val action: Action, val payload: String) {
 

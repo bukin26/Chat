@@ -1,7 +1,7 @@
 package com.gmail.chat.di
 
-import com.gmail.chat.utils.MySharedPreferences
 import com.gmail.chat.utils.MySharedPreferencesImpl
+import com.gmail.data.MySharedPreferences
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

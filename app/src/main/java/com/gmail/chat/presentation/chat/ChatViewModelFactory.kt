@@ -2,8 +2,8 @@ package com.gmail.chat.presentation.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.gmail.chat.data.Repository
-import com.gmail.chat.utils.MySharedPreferences
+import com.gmail.data.Repository
+import com.gmail.data.MySharedPreferences
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
