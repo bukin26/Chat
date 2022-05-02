@@ -16,19 +16,13 @@ import com.gmail.chat.model.User
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class UsersListFragment : Fragment() {
 
     private lateinit var binding: FragmentUsersListBinding
     private val adapter = UsersAdapter { user -> adapterOnClick(user) }
-
-    @Inject
-    lateinit var viewModelFactory: UsersListViewModelFactory
-    private val viewModel: UsersListViewModel by viewModels(factoryProducer = {
-        viewModelFactory
-    })
+    private val viewModel: UsersListViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
